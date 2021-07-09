@@ -9,10 +9,10 @@ import argparse
 ######利用python3 -m weditor来查看安卓控件id#########################
 resolutions1 = ['1280,720,5', '1280,720,10', '1280,720,15', '1280,720,30', '1920,1080,5', '1920,1080,10',
                    '1920,1080,15', '1920,1080,30']
-resolutions2 = ['1280,720,30', '1920,1080,30', '3840,2160,15']
+resolutions2 = ['2304,1296,30']
 resolutions = ['1280,720,5', '1280,720,10', '1280,720,15', '1280,720,30', '1920,1080,5', '1920,1080,10',
                    '1920,1080,15', '1920,1080,30', '3840,2160,5', '3840,2160,10', '3840,2160,15']
-fovs = ['50']
+fovs = ['50', '70', '100', '101']
 global Switchdisplayfail
 Switchdisplayfail = 0
 def log(value):
@@ -90,7 +90,7 @@ def ocscreen():
 
 def camera_test():
     start_test()
-    camera_test_btn = vc.findViewById('com.llvision.glass3.api.test:id/id_camera_btn')
+    camera_test_btn = vc.findViewById('com.llvision.glass3.api.test:id/id_base_camera_btn')
 
     if camera_test_btn:
         log(u'点击camera test，跳转到camera test页面.')
@@ -134,6 +134,10 @@ def takepicture(ti):
 def takephoto(ti):
     for takephototime in range(0, ti):
         btn_takephoto = vc.findViewById('com.llvision.glass3.api.test:id/btn_takepicture2')
+        if not btn_takephoto:
+            device.drag((345, 1550), (345, 1450), duration=100)
+            vc.dump()
+        btn_takephoto = vc.findViewById('com.llvision.glass3.api.test:id/btn_takepicture2')
         if btn_takephoto:
             log(u'拍照.')
             btn_takephoto.touch()
@@ -172,15 +176,80 @@ def render_Record(ti):
             # occameratime =+ 1
             log(u'叠加录像' + str(Recordtime + 1) + '次')
 
+def setFrame(frame):
+    frame_btn = vc.findViewById('com.llvision.glass3.api.test:id/spinner_pixel_format')
+    if frame_btn:
+        log(u'选择frame: ' + str(frame))
+        frame_btn.touch()
+        time.sleep(0.1)
+        vc.dump()
+
+        # 切换分辨率
+        user_tab = vc.findViewWithText(frame)
+        if not user_tab:
+            device.drag((345, 1250), (345, 1550), duration=100)
+            vc.dump()
+        user_tab = vc.findViewWithText(frame)
+        user_tab.touch()
+        time.sleep(0.1)
+        vc.dump()
+
+def saveFrame(ti):
+
+    saveFrame_btn = vc.findViewById('com.llvision.glass3.api.test:id/btn_save_raw_frame')
+    if not saveFrame_btn:
+        device.drag((345, 1850), (345, 1250), duration=100)
+        vc.dump()
+    saveFrame_btn = vc.findViewById('com.llvision.glass3.api.test:id/btn_save_raw_frame')
+
+    if saveFrame_btn:
+        log(u'开始保存frame: ' + str(ti))
+        saveFrame_btn.touch()
+        time.sleep(0.1)
+        vc.dump()
+def StopFrame(ti):
+
+    StopFrame_btn = vc.findViewById('com.llvision.glass3.api.test:id/btn_stop_raw_frame')
+    if not StopFrame_btn:
+        device.drag((345, 1250), (345, 1550), duration=100)
+        vc.dump()
+    StopFrame_btn = vc.findViewById('com.llvision.glass3.api.test:id/btn_stop_raw_frame')
+
+    if StopFrame_btn:
+        log(u'stop frame: ' + str(ti))
+        StopFrame_btn.touch()
+        time.sleep(0.1)
+        vc.dump()
+
+def RegisterCallback(ti):
+
+    RegisterCallback_btn = vc.findViewById('com.llvision.glass3.api.test:id/btn_frame_callback')
+    if not RegisterCallback_btn:
+        device.drag((345, 1550), (345, 1450), duration=100)
+        vc.dump()
+    RegisterCallback_btn = vc.findViewById('com.llvision.glass3.api.test:id/btn_frame_callback')
+
+    if RegisterCallback_btn:
+        if ti == 0:
+            log(u'注册callback')
+        if ti == 1:
+            log(u'注销callback')
+        RegisterCallback_btn.touch()
+        time.sleep(0.1)
+        vc.dump()
 def Ocamera(ti):
 
     # occameratime = 0
     for occameratime in range(ti):
         btn_camera = vc.findViewById('com.llvision.glass3.api.test:id/btn_camera')
+        if not btn_camera:
+            device.drag((345, 1450), (345, 1550), duration=100)
+            vc.dump()
+        btn_camera = vc.findViewById('com.llvision.glass3.api.test:id/btn_camera')
         if btn_camera:
             log(u'打开/关闭camera.')
             btn_camera.touch()
-            time.sleep(10)
+            time.sleep(3)
             if (occameratime % 2) == 0:
                 time.sleep(5)
                 vc.dump()
@@ -188,10 +257,11 @@ def Ocamera(ti):
                 if argv.OC_camera:
                     takepicture(1)
                 else:
-                    takepicture(1)
-                    takephoto(1)
-                    Record(1)
-                    render_Record(1)
+                    pass
+                    # takepicture(1)
+                    # takephoto(1)
+                    # Record(1)
+                    # render_Record(1)
 
             else:
                 log(u'打开/关闭camera' + str(occameratime/2 + 0.5) + '次')
@@ -213,7 +283,7 @@ def Set_resolution(resolution):
         user_tab.touch()
         time.sleep(0.2)
         vc.dump()
-        Ocamera(2)
+        # Ocamera(2)
 def Set_FOV(fov):
     id_spinner_view = vc.findViewById('com.llvision.glass3.api.test:id/spinner_fov')
     if id_spinner_view:
@@ -322,31 +392,11 @@ def Switch_resolution():
             for resolution in resolutions1:
                 # resolution = random.choice(resolutions1)
                 Set_resolution(resolution)
-    # Set_resolution(u'1280,720,5')
-    # # takepicture(1)
-    # # Switch_resolution(u'1280,720,1')
-    # Set_resolution(u'1280,720,15')
-    # # takepicture(1)
-    # Set_resolution(u'1280,720,30')
-    # # takepicture(1)
-    # Set_resolution(u'1920,1080,10')
-    # # takepicture(1)
-    # Set_resolution(u'1920,1080,5')
-    # # takepicture(1)
-    # Set_resolution(u'1920,1080,15')
-    # # takepicture(1)
-    # Set_resolution(u'1920,1080,30')
-    # # takepicture(1)
-    # Set_resolution(u'3840,2160,10')
-    # # takepicture(1)
-    # Set_resolution(u'3840,2160,5')
-    # # takepicture(1)
-    # Set_resolution(u'3840,2160,15')
-    # takepicture(1)
+
 def OC_camera(resolution):
 
     Set_ReOv(resolution,'100')
-    log(u'开始打开关闭camera测试' + str(resolution))
+    log(u'开始framecallback测试' + str(resolution))
     Ocamera(9999999999)
 
 def OC_record(resolution):
@@ -422,6 +472,49 @@ def Switchdisplay():
             return start_test()
 
         log(u'display切换' + str(Switchdisplaytime+1) + '次')
+def testFrame():
+    for resolution in resolutions2:
+        Set_resolution(resolution)
+        if resolution in ['3840,2160,15']:
+            fovs1 = ['101']
+        elif resolution in ['1280,720,30','1920,1080,30']:
+            # fovs1 = ['100', '70', '50']
+            fovs1 = ['50']
+        else:
+            # fovs1 = ['101', '100', '70', '50']
+            fovs1 = ['50']
+        for fov in fovs1:
+            Set_FOV(fov)
+            for frame in ['NV21', 'YV12', 'I420', 'YUY2']:
+                setFrame(frame)
+                RegisterCallback(0)
+                saveFrame(resolution)
+                setFrame('H264')
+                RegisterCallback(0)
+                saveFrame(resolution)
+                takephoto(1)
+                time.sleep(5)
+
+                setFrame(frame)
+                StopFrame(resolution)
+                RegisterCallback(1)
+                setFrame('H264')
+                StopFrame(resolution)
+                RegisterCallback(1)
+
+                # setFrame('H264')
+                RegisterCallback(0)
+                saveFrame(resolution)
+                setFrame(frame)
+                RegisterCallback(0)
+                saveFrame(resolution)
+                time.sleep(5)
+                takephoto(1)
+                StopFrame(resolution)
+                RegisterCallback(1)
+                setFrame('H264')
+                StopFrame(resolution)
+                RegisterCallback(1)
 # displaytest()
 # Switchdisplay()
 # camera_test()
@@ -439,19 +532,20 @@ if __name__ == "__main__":
     argv = parser.parse_args()
     if argv.camera:
         camera_test()
-
-        if argv.Switch_resolution:
-            Switch_resolution()
-        elif argv.Switch_fov:
-            Switch_fov()
-        elif argv.Switch_fov1:
-            Switch_fov1()
-        elif argv.OC_camera:
-            if argv.resolution == 0:
-                resolution123 = '3840,2160,15'
-            if argv.resolution == 1:
-                resolution123 = '1920,1080,30'
-            OC_camera(resolution123)
+        testFrame()
+        
+        # if argv.Switch_resolution:
+        #     Switch_resolution()
+        # elif argv.Switch_fov:
+        #     Switch_fov()
+        # elif argv.Switch_fov1:
+        #     Switch_fov1()
+        # elif argv.OC_camera:
+        #     if argv.resolution == 0:
+        #         resolution123 = '3840,2160,15'
+        #     if argv.resolution == 1:
+        #         resolution123 = '1920,1080,30'
+        #     OC_camera(resolution123)
     else:
         displaytest()
         Switchdisplay()
